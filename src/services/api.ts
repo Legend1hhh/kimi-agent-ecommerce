@@ -3,17 +3,25 @@ const API = "https://ecommerce-api.fariqshop62.workers.dev";
 /* ================= PRODUCTS ================= */
 
 export const productsApi = {
-  getAll: async () => fetch(API + "/products").then(r => r.json()),
+  getAll: async (category?: string) => {
+    const url = category ? `/products?category=${category}` : `/products`;
+    return fetch(API + url).then(r => r.json());
+  },
 
-  getOne: async (slug: string) => fetch(API + "/products/" + slug).then(r => r.json()),
+  getOne: async (slug: string) =>
+    fetch(API + "/products/" + slug).then(r => r.json()),
 
-  getBySlug: async (slug: string) => fetch(API + "/products/" + slug).then(r => r.json()),
+  getBySlug: async (slug: string) =>
+    fetch(API + "/products/" + slug).then(r => r.json()),
 
-  getFeatured: async () => fetch(API + "/products?featured=1").then(r => r.json()),
+  getFeatured: async () =>
+    fetch(API + "/products?featured=1").then(r => r.json()),
 
-  getNewArrivals: async () => fetch(API + "/products?new=1").then(r => r.json()),
+  getNewArrivals: async () =>
+    fetch(API + "/products?new=1").then(r => r.json()),
 
-  getRelated: async (slug: string) => fetch(API + "/products/" + slug + "/related").then(r => r.json()),
+  getRelated: async (slug: string) =>
+    fetch(API + "/products/" + slug + "/related").then(r => r.json()),
 
   add: async (data: any) =>
     fetch(API + "/add-product", {
@@ -33,41 +41,58 @@ export const ordersApi = {
       body: JSON.stringify(order),
     }).then(r => r.json()),
 
-  getMyOrders: async () => fetch(API + "/orders/my").then(r => r.json()),
+  getMyOrders: async () =>
+    fetch(API + "/orders/my").then(r => r.json()),
 
-  getAll: async () => fetch(API + "/orders").then(r => r.json()),
+  getAll: async (status?: string) => {
+    const url = status ? `/orders?status=${status}` : `/orders`;
+    return fetch(API + url).then(r => r.json());
+  },
 
-  getById: async (id: string) => fetch(API + "/orders/" + id).then(r => r.json()),
+  getById: async (id: string) =>
+    fetch(API + "/orders/" + id).then(r => r.json()),
 };
 
 /* ================= AUTH ================= */
 
 export const authApi = {
-  login: async (data: any) =>
+  login: async (data: any, token?: string) =>
     fetch(API + "/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
       body: JSON.stringify(data),
     }).then(r => r.json()),
 
-  register: async (data: any) =>
+  register: async (data: any, token?: string) =>
     fetch(API + "/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
       body: JSON.stringify(data),
     }).then(r => r.json()),
 
-  updateProfile: async (data: any) =>
+  updateProfile: async (data: any, token?: string) =>
     fetch(API + "/profile", {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
       body: JSON.stringify(data),
     }).then(r => r.json()),
 
-  changePassword: async (data: any) =>
+  changePassword: async (data: any, token?: string) =>
     fetch(API + "/change-password", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
       body: JSON.stringify(data),
     }).then(r => r.json()),
 };
@@ -82,10 +107,13 @@ export const couponApi = {
       body: JSON.stringify({ code }),
     }).then(r => r.json()),
 
-  validate: async (code: string) =>
+  validate: async (code: string, token?: string) =>
     fetch(API + "/validate-coupon", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
       body: JSON.stringify({ code }),
     }).then(r => r.json()),
 };
@@ -95,6 +123,11 @@ export const couponApi = {
 export const searchApi = {
   search: async (q: string) =>
     fetch(API + "/search?q=" + encodeURIComponent(q)).then(r => r.json()),
+
+  getSuggestions: async (q: string) =>
+    fetch(API + "/search/suggestions?q=" + encodeURIComponent(q)).then(r =>
+      r.json()
+    ),
 };
 
 /* ================= CATEGORIES ================= */
