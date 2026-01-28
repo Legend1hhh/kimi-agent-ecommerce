@@ -28,10 +28,10 @@ const CART_KEY = 'cart_data';
 
 const calculateCartTotals = (items: CartItem[], discount: number = 0): Omit<Cart, 'items' | 'couponCode'> => {
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const tax = subtotal * 0.08; // 8% tax
-  const shipping = subtotal > 100 ? 0 : 15; // Free shipping over $100
+  const tax = subtotal * 0.08;
+  const shipping = subtotal > 100 ? 0 : 15;
   const total = subtotal + tax + shipping - discount;
-  
+
   return {
     subtotal,
     tax,
@@ -51,8 +51,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const savedCart = localStorage.getItem(CART_KEY);
     if (savedCart) {
       try {
-        const parsed = JSON.parse(savedCart);
-        setCart(parsed);
+        setCart(JSON.parse(savedCart));
       } catch {
         localStorage.removeItem(CART_KEY);
       }
@@ -74,18 +73,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (existingItemIndex > -1) {
         newItems = [...prevCart.items];
         const existingItem = newItems[existingItemIndex];
-        const newQuantity = Math.min(
-          existingItem.quantity + quantity,
-          existingItem.maxQuantity
-        );
-        
+        const newQuantity = Math.min(existingItem.quantity + quantity, existingItem.maxQuantity);
+
         if (newQuantity === existingItem.quantity) {
-          toast.info('Maximum quantity reached for this item');
+          toast.info('Maximum quantity reached');
           return prevCart;
         }
-        
+
         newItems[existingItemIndex] = { ...existingItem, quantity: newQuantity };
-        toast.success(`Updated quantity in cart`);
+        toast.success('Updated quantity');
       } else {
         const newItem: CartItem = {
           id: `${product.id}-${variantId || 'default'}-${Date.now()}`,
@@ -93,14 +89,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
           variantId,
           name: product.name,
           slug: product.slug,
-          price: variantId 
-            ? product.variants.find(v => v.id === variantId)?.price || product.price 
+          price: variantId
+            ? product.variants.find(v => v.id === variantId)?.price || product.price
             : product.price,
           quantity: Math.min(quantity, product.quantity),
           image: product.featuredImage,
           maxQuantity: product.quantity,
           attributes,
         };
+
         newItems = [...prevCart.items, newItem];
         toast.success('Added to cart');
       }
@@ -114,22 +111,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCart(prevCart => {
       const newItems = prevCart.items.filter(item => item.id !== itemId);
       const totals = calculateCartTotals(newItems, prevCart.discount);
-      toast.success('Item removed from cart');
+      toast.success('Item removed');
       return { ...prevCart, items: newItems, ...totals };
     });
   }, []);
 
   const updateQuantity = useCallback((itemId: string, quantity: number) => {
     if (quantity < 1) return;
-    
+
     setCart(prevCart => {
-      const newItems = prevCart.items.map(item => {
-        if (item.id === itemId) {
-          return { ...item, quantity: Math.min(quantity, item.maxQuantity) };
-        }
-        return item;
-      });
-      
+      const newItems = prevCart.items.map(item =>
+        item.id === itemId ? { ...item, quantity: Math.min(quantity, item.maxQuantity) } : item
+      );
+
       const totals = calculateCartTotals(newItems, prevCart.discount);
       return { ...prevCart, items: newItems, ...totals };
     });
@@ -144,27 +138,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const applyCoupon = useCallback(async (code: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const response = await couponApi.validate(code, cart.subtotal);
-      
+      const response = await couponApi.validate(code, cart.subtotal.toString());
+
       if (response.success && response.data) {
         const coupon = response.data;
-        let discount = 0;
-        
-        if (coupon.type === 'percentage') {
-          discount = cart.subtotal * (coupon.value / 100);
-        } else {
-          discount = coupon.value;
-        }
-        
+        const discount =
+          coupon.type === 'percentage'
+            ? cart.subtotal * (coupon.value / 100)
+            : coupon.value;
+
         const totals = calculateCartTotals(cart.items, discount);
         setCart(prev => ({ ...prev, ...totals, couponCode: code }));
-        toast.success(`Coupon applied: ${code}`);
+        toast.success(`Coupon applied`);
         return true;
-      } else {
-        toast.error(response.message || 'Invalid coupon code');
-        return false;
       }
-    } catch (error) {
+
+      toast.error(response.message || 'Invalid coupon');
+      return false;
+    } catch {
       toast.error('Failed to apply coupon');
       return false;
     } finally {
@@ -180,25 +171,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const value: CartContextType = {
-    cart,
-    isLoading,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    applyCoupon,
-    removeCoupon,
-    itemCount,
-  };
-
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider
+      value={{
+        cart,
+        isLoading,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        applyCoupon,
+        removeCoupon,
+        itemCount,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
 }
 
 export function useCart() {
   const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCart must be used within a CartProvider');
-  }
+  if (!context) throw new Error('useCart must be used within CartProvider');
   return context;
 }
