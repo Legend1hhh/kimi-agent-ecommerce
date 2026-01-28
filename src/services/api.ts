@@ -1,93 +1,118 @@
 const API = "https://ecommerce-api.fariqshop62.workers.dev";
 
-/* ---------- Products ---------- */
+/* ================= PRODUCTS ================= */
+
 export const productsApi = {
-  getAll: async () => {
-    const res = await fetch(API + "/products");
-    return res.json();
-  },
+  getAll: async () => fetch(API + "/products").then(r => r.json()),
 
-  getOne: async (slug: string) => {
-    const res = await fetch(API + "/products/" + slug);
-    return res.json();
-  },
+  getOne: async (slug: string) => fetch(API + "/products/" + slug).then(r => r.json()),
 
-  add: async (data: any) => {
-    const res = await fetch(API + "/add-product", {
+  getBySlug: async (slug: string) => fetch(API + "/products/" + slug).then(r => r.json()),
+
+  getFeatured: async () => fetch(API + "/products?featured=1").then(r => r.json()),
+
+  getNewArrivals: async () => fetch(API + "/products?new=1").then(r => r.json()),
+
+  getRelated: async (slug: string) => fetch(API + "/products/" + slug + "/related").then(r => r.json()),
+
+  add: async (data: any) =>
+    fetch(API + "/add-product", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    });
-    return res.json();
-  },
+    }).then(r => r.json()),
 };
 
-/* ---------- Orders ---------- */
+/* ================= ORDERS ================= */
+
 export const ordersApi = {
-  create: async (order: any) => {
-    const res = await fetch(API + "/create-order", {
+  create: async (order: any) =>
+    fetch(API + "/create-order", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(order),
-    });
-    return res.json();
-  },
+    }).then(r => r.json()),
 
-  getMyOrders: async () => {
-    const res = await fetch(API + "/orders");
-    return res.json();
-  },
+  getMyOrders: async () => fetch(API + "/orders/my").then(r => r.json()),
+
+  getAll: async () => fetch(API + "/orders").then(r => r.json()),
+
+  getById: async (id: string) => fetch(API + "/orders/" + id).then(r => r.json()),
 };
 
-/* ---------- Auth ---------- */
+/* ================= AUTH ================= */
+
 export const authApi = {
-  login: async (data: any) => {
-    const res = await fetch(API + "/login", {
+  login: async (data: any) =>
+    fetch(API + "/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    });
-    return res.json();
-  },
+    }).then(r => r.json()),
 
-  register: async (data: any) => {
-    const res = await fetch(API + "/register", {
+  register: async (data: any) =>
+    fetch(API + "/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    });
-    return res.json();
-  },
+    }).then(r => r.json()),
+
+  updateProfile: async (data: any) =>
+    fetch(API + "/profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then(r => r.json()),
+
+  changePassword: async (data: any) =>
+    fetch(API + "/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then(r => r.json()),
 };
 
-/* ---------- Cart / Coupon ---------- */
+/* ================= COUPON ================= */
+
 export const couponApi = {
-  apply: async (code: string) => {
-    const res = await fetch(API + "/apply-coupon", {
+  apply: async (code: string) =>
+    fetch(API + "/apply-coupon", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
-    });
-    return res.json();
-  },
+    }).then(r => r.json()),
+
+  validate: async (code: string) =>
+    fetch(API + "/validate-coupon", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    }).then(r => r.json()),
 };
 
-/* ---------- Categories ---------- */
+/* ================= SEARCH ================= */
+
+export const searchApi = {
+  search: async (q: string) =>
+    fetch(API + "/search?q=" + encodeURIComponent(q)).then(r => r.json()),
+};
+
+/* ================= CATEGORIES ================= */
+
 export const categoriesApi = {
-  getAll: async () => {
-    const res = await fetch(API + "/categories");
-    return res.json();
-  },
+  getAll: async () => fetch(API + "/categories").then(r => r.json()),
 };
 
-/* ---------- Reviews ---------- */
+/* ================= REVIEWS ================= */
+
 export const reviewsApi = {
-  add: async (data: any) => {
-    const res = await fetch(API + "/add-review", {
+  add: async (data: any) =>
+    fetch(API + "/add-review", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    });
-    return res.json();
-  },
+    }).then(r => r.json()),
+
+  getByProduct: async (slug: string) =>
+    fetch(API + "/products/" + slug + "/reviews").then(r => r.json()),
 };
