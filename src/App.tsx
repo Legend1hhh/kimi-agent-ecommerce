@@ -14,7 +14,9 @@ import Register from '@/pages/Register';
 import Profile from '@/pages/Profile';
 import Orders from '@/pages/Orders';
 import OrderSuccess from '@/pages/OrderSuccess';
+
 import NotFound from '@/pages/NotFound';
+import Admin from '@/pages/Admin';
 
 function App() {
   return (
@@ -35,6 +37,7 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/order-success/:orderId" element={<OrderSuccess />} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
