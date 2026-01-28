@@ -1,0 +1,30 @@
+{
+  "name": "luxemarket-api",
+  "version": "1.0.0",
+  "description": "LuxeMarket E-Commerce API powered by Cloudflare Workers",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env production",
+    "db:create": "wrangler d1 create luxemarket-db",
+    "db:migrate": "wrangler d1 execute luxemarket-db --file=../database/d1-schema.sql",
+    "db:seed": "wrangler d1 execute luxemarket-db --file=../database/seed.sql",
+    "db:reset": "npm run db:migrate && npm run db:seed"
+  },
+  "dependencies": {
+    "jose": "^5.2.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.22.0"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "ecommerce",
+    "api"
+  ],
+  "author": "LuxeMarket",
+  "license": "MIT"
+}
